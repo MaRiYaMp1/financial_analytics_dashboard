@@ -1,0 +1,98 @@
+import React, { useState } from 'react';
+import { X, Download } from 'lucide-react';
+
+interface ExportModalProps {
+  onClose: () => void;
+  onExport: (columns: string[]) => void;
+}
+
+const availableColumns = [
+  { key: 'id', label: 'ID' },
+  { key: 'date', label: 'Date' },
+  { key: 'amount', label: 'Amount' },
+  { key: 'category', label: 'Category' },
+  { key: 'status', label: 'Status' },
+  { key: 'user_id', label: 'User ID' },
+  { key: 'user_profile', label: 'User Profile URL' },
+  { key: 'description', label: 'Description' },
+  { key: 'created_at', label: 'Created At' },
+];
+
+export function ExportModal({ onClose, onExport }: ExportModalProps) {
+  const [selectedColumns, setSelectedColumns] = useState<string[]>([
+    'id', 'date', 'amount', 'category', 'status', 'user_id'
+  ]);
+
+  const handleColumnToggle = (column: string) => {
+    setSelectedColumns(prev => 
+      prev.includes(column) 
+        ? prev.filter(c => c !== column)
+        : [...prev, column]
+    );
+  };
+
+  const handleExport = () => {
+    onExport(selectedColumns);
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div className="bg-slate-800 rounded-lg border border-slate-700 p-6 w-full max-w-md">
+        <div className="flex items-center justify-between mb-4">
+          <h3 className="text-lg font-medium text-white">Export Transactions</h3>
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-slate-300"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        <div className="mb-6">
+          <p className="text-sm text-slate-400 mb-4">
+            Select the columns you want to include in your CSV export:
+          </p>
+          <div className="space-y-2 max-h-60 overflow-y-auto">
+            {availableColumns.map((column) => (
+              <label
+                key={column.key}
+                className="flex items-center space-x-2 cursor-pointer"
+              >
+                <input
+                  type="checkbox"
+                  checked={selectedColumns.includes(column.key)}
+                  onChange={() => handleColumnToggle(column.key)}
+                  className="rounded border-slate-600 bg-slate-700 text-emerald-600 focus:ring-emerald-500"
+                />
+                <span className="text-sm text-slate-300">{column.label}</span>
+              </label>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-slate-400">
+            {selectedColumns.length} columns selected
+          </p>
+          <div className="flex space-x-2">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-slate-700 text-slate-300 rounded-lg hover:bg-slate-600"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={handleExport}
+              disabled={selectedColumns.length === 0}
+              className="flex items-center space-x-2 px-4 py-2 bg-emerald-600 text-white rounded-lg hover:bg-emerald-700 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <Download className="h-4 w-4" />
+              <span>Export CSV</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
